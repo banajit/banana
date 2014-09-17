@@ -68,9 +68,7 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
         }
       ],
       status  : "Stable",
-      description : "A bucketed time series chart of the current query or queries. Uses the "+
-        "Solr facet range. If using time stamped indices this panel will query"+
-        " them sequentially to attempt to apply the lighest possible load to your Solr cluster"
+      description : "A bucketed time series chart of the current query, including all applied time and non-time filters, when used in <i>count</i> mode. Uses Solr’s facet.range query parameters. In <i>values</i> mode, it plots the value of a specific field over time, and allows the user to group field values by a second field."
     };
 
     // Set and populate defaults
@@ -567,7 +565,7 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
               },
               yaxis: {
                 show: scope.panel['y-axis'],
-                min: 0,
+                min: null, // TODO - make this adjusted dynamicmally, and add it to configuration panel
                 max: scope.panel.percentage && scope.panel.stack ? 100 : null,
               },
               xaxis: {
@@ -665,9 +663,16 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
             } else {
               value = item.datapoint[1];
             }
+            //if mode=utc, convert tooltip time to utc
+            if(scope.panel.timezone === 'utc') {
+              var tooltipTime = moment.utc(item.datapoint[0]).format('MM/DD HH:mm:ss');
+            }
+            else {
+              var tooltipTime = moment(item.datapoint[0]).format('MM/DD HH:mm:ss');
+            }
             $tooltip
               .html(
-                group + value + " @ " + moment(item.datapoint[0]).format('MM/DD HH:mm:ss')
+                group + dashboard.numberWithCommas(value) + " @ " + tooltipTime
               )
               .place_tt(pos.pageX, pos.pageY);
           } else {

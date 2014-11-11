@@ -663,7 +663,7 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
             } else {
               value = item.datapoint[1];
             }
-            //if mode=utc, convert tooltip time to utc
+            //if mode=utc, convert tooltip time to utc when time correction is utc
             if(scope.panel.timezone === 'utc') {
               var tooltipTime = moment.utc(item.datapoint[0]).format('MM/DD HH:mm:ss');
             }
